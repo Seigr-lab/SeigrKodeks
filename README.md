@@ -1,70 +1,82 @@
 # SeigrKodeks - The Seigr Markdown Book Framework
 
 ## 🛠️ Overview
-SeigrKodeks is a lightweight, structured, and modular **Markdown-based book framework** designed for the **Seigr ecosystem**. Unlike existing documentation solutions, SeigrKodeks provides a **flexible and format-agnostic approach**, allowing content to be written in multiple formats (Markdown, MediaWiki) and stored **consistently in Markdown**. 
+SeigrKodeks is a **fully standalone desktop application** for **creating structured books** using **Markdown**. It provides an efficient, flexible, and portable way to write, manage, and export documentation or books without relying on a web browser or external servers.
 
-The goal is to streamline **technical documentation, structured knowledge storage, and dynamic book rendering** in a clean and maintainable format. SeigrKodeks is designed to be:
+The tool allows users to:
+- **Create books with multiple chapters**.
+- **Write in Markdown or MediaWiki format**, with automatic conversion to Markdown.
+- **Embed images, videos, and audio** within the Markdown files.
+- **Export books as static HTML sites**, ready for hosting or local reading.
 
-- **Modular**: Supports multiple input formats but standardizes output to Markdown.
-- **Lightweight**: Minimal dependencies, avoiding unnecessary external libraries.
-- **Extensible**: Future-proof architecture to support additional text formats.
-- **Portable**: Works across different environments, including WSL, Linux, and Windows.
-- **Seigr-First**: Follows Seigr’s structured development ethos.
+SeigrKodeks is:
+- **Standalone**: Runs as a desktop application with **no web dependencies**.
+- **Portable**: Works on **Linux, WSL, and Windows**.
+- **Future-Proof**: Supports **extending to other formats** in the future.
+- **Minimalist**: Avoids unnecessary dependencies and bloated frameworks.
 
 ---
 
 ## 🎯 Motivation
-### **Why Create SeigrKodeks Instead of Using Existing Tools?**
-Most documentation and book frameworks fall into two categories:
-1. **Markdown-focused frameworks** (MkDocs, GitBook) that lack flexibility.
-2. **General-purpose wiki/documentation systems** (MediaWiki, Docusaurus) that introduce complexity.
+### **Why SeigrKodeks Instead of Existing Tools?**
+Most book/documentation tools either:
+1. **Are web-based** (MkDocs, GitBook, Docusaurus) and depend on browsers.
+2. **Have limited support for media** in structured Markdown books.
+3. **Force users to work in a single format** instead of allowing MediaWiki and Markdown interoperability.
 
-SeigrKodeks aims to **bridge the gap**, providing:
+SeigrKodeks addresses these problems by providing:
 
-### 🔹 **1. Multi-Format Support & Standardization**
-- Existing tools force users to commit to a **single format** (Markdown, AsciiDoc, or MediaWiki).
-- SeigrKodeks allows users to **write in different formats** and **automatically convert them to Markdown**.
-- This is essential for migrating from **MediaWiki** (legacy Seigr documentation) to a **modern, structured format**.
+### 🔹 **1. A Full Book Creation Framework**
+- Users can **define a book title**, add **chapters**, and **organize content**.
+- Every **chapter is a separate `.md` file**, linked into a structured book.
+- Books can be saved, edited, and reloaded for long-term project management.
 
-### 🔹 **2. Lightweight & Portable**
-- No bloated dependencies.
-- Designed to **run locally** without requiring a server.
-- Can be packaged as a **static web app** for viewing Markdown books.
+### 🔹 **2. A Markdown-Centric, Desktop-First Approach**
+- Unlike online tools, **everything runs locally**.
+- Books and chapters are **saved as Markdown** (portable & future-proof).
+- Supports **editing, media embedding, and file-based organization**.
 
-### 🔹 **3. Structured for Seigr’s Needs**
-- Documentation must be **clear, versioned, and modular**.
-- Unlike traditional Markdown systems, SeigrKodeks integrates **format detection, auto-conversion, and clean book rendering**.
-- The framework adheres to Seigr’s **standardized development guidelines**.
+### 🔹 **3. Automatic Format Detection & Conversion**
+- Users can enter **Markdown or MediaWiki**, and the tool **automatically converts** to Markdown.
+- Legacy documentation in MediaWiki format is seamlessly transitioned to Markdown.
 
-### 🔹 **4. Future-Proof & Extensible**
-- Designed with a **modular parser system**, allowing **additional text formats** to be added in the future.
-- As Seigr grows, the documentation system should be **scalable** and **adaptable**.
+### 🔹 **4. Export to Static HTML for Easy Hosting**
+- Users can **generate a static website** from the book.
+- Each **chapter becomes a linked HTML page**, forming an interactive book site.
+- **Supports images, audio, and video embedding**.
 
 ---
 
 ## 🔄 How It Works
-### **1️⃣ Format Detection**
-- SeigrKodeks can **automatically detect** whether the input text is written in:
-  - **Markdown** (`#`, `-`, `*`, `[link](url)`, `![img](url)`).
-  - **MediaWiki** (`== Headings ==`, `'''Bold'''`, `[[Links]]`).
-- This detection enables seamless conversion of **existing MediaWiki documentation** into Markdown.
+### **1️⃣ Create & Manage Books**
+- Users **name their book** and define where to save it.
+- Chapters can be **created, edited, and linked together**.
+- Markdown and MediaWiki **can be used interchangeably**, ensuring easy migration.
 
-### **2️⃣ Unified Markdown Storage**
-- Regardless of input format, all content is stored as **Markdown** for **consistency and long-term maintainability**.
+### **2️⃣ Embed Media in Markdown**
+- Users can insert:
+  - **Images**: `![alt text](image.jpg)`
+  - **Videos**: `<video src="video.mp4" controls>`
+  - **Audio**: `<audio src="audio.mp3" controls>`
+- Media files are stored in the **`assets/` directory** for organization.
 
-### **3️⃣ Browser-Based Markdown Rendering**
-- Instead of pre-converting Markdown to HTML, SeigrKodeks **displays raw Markdown in an interactive browser UI**.
-- Uses **JavaScript rendering** (`marked.js`) to provide a **live preview** without server processing.
+### **3️⃣ Export to Static HTML**
+- Books can be **converted to HTML** with:
+  - A **Table of Contents**.
+  - **Interlinked chapters**.
+  - **Embedded media support**.
+- The **output can be uploaded to any web server** or viewed locally.
 
 ---
 
 ## 📦 Features
-✅ **Multi-Format Input** – Write in either **Markdown or MediaWiki**.
-✅ **Automatic Format Detection** – The system detects the input format and processes it accordingly.
-✅ **Live Markdown Rendering** – View formatted Markdown directly in the browser.
-✅ **Minimal Dependencies** – Avoids unnecessary external libraries.
-✅ **Modular & Future-Proof** – Easily expandable to support new formats.
-✅ **Portable & Local-First** – Can run **without internet access**.
+✅ **Standalone Desktop App** – No browser, no web dependencies.
+✅ **Multi-Format Input** – Write in **Markdown or MediaWiki**.
+✅ **Automatic Format Detection** – Converts **MediaWiki to Markdown** seamlessly.
+✅ **Full Book Organization** – Manage chapters, edit them, and structure books.
+✅ **Media Embedding** – Supports **images, video, and audio in Markdown**.
+✅ **Export as Static Website** – Generate a **lightweight, hostable book site**.
+✅ **Minimal & Portable** – Works on **Linux, WSL, and Windows**.
 
 ---
 
@@ -74,15 +86,12 @@ SeigrKodeks/
 │── seigr_kodeks/
 │   ├── parsers/            # Format detection and conversion
 │   │   ├── format_detector.py   # Detects whether text is Markdown or MediaWiki
-│   │   ├── mediawiki_to_md.py   # Converts MediaWiki syntax to Markdown (soon)
+│   │   ├── mediawiki_to_md.py   # Converts MediaWiki syntax to Markdown
 │   ├── markdown_parser.py   # Processes Markdown files
-│   ├── html_renderer.py     # Displays Markdown as HTML in the browser
-│   ├── server.py            # (Future) Serve as a local static site generator
-│── chapters/                # User Markdown content
-│── assets/                  # Images, videos, audio
-│── static/                  # CSS, JS for frontend
-│── templates/               # HTML templates for rendering
-│── main.py                  # CLI interface (future expansion)
+│   ├── desktop_gui.py       # The Tkinter-based desktop application
+│── books/                   # User-created books (each book is a directory)
+│── assets/                  # Images, videos, audio for the books
+│── output/                  # Exported HTML versions of books
 │── requirements.txt         # Dependencies (minimal)
 │── .gitignore               # Git ignore file
 │── README.md                # Documentation
@@ -91,9 +100,10 @@ SeigrKodeks/
 ---
 
 ## 🔥 Next Steps
-- ✅ **Implement Format Detection** (Done!)
-- ⏳ **Develop MediaWiki to Markdown Converter** (Next Priority)
-- ⏳ **Expand UI with a File Selector & Enhanced Styling**
-- ⏳ **Add Future Format Support (e.g., reStructuredText, AsciiDoc)**
+- ✅ **Implement Format Detection & Conversion** (Done!)
+- ✅ **Develop the Desktop UI** (Done!)
+- ⏳ **Expand UI with Book & Chapter Management**
+- ⏳ **Add Media Upload & Embedding Features**
+- ⏳ **Implement Static HTML Export for Books**
 
-SeigrKodeks is designed to **simplify documentation workflows** while remaining flexible and future-proof. 🚀
+SeigrKodeks is designed to **simplify book creation** while remaining flexible and **future-proof**. 🚀
