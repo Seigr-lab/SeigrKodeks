@@ -1,7 +1,16 @@
 import re
+import sys
+import os
+
+# Ensure the parent directory is in sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
+# Now import the module
+from seigr_kodeks.parsers.mediawiki_to_md import mediawiki_to_markdown
+
 
 def detect_format(text):
-    """Detect whether the given text is Markdown or MediaWiki syntax."""
+    """Detect whether the given text is Markdown or MediaWiki syntax and convert MediaWiki to Markdown."""
     # MediaWiki patterns (e.g., headings, bold, links)
     mediawiki_patterns = [
         r'==[^=]+==',  # MediaWiki headings
@@ -19,19 +28,22 @@ def detect_format(text):
     # Check for MediaWiki syntax
     for pattern in mediawiki_patterns:
         if re.search(pattern, text):
-            return "mediawiki"
+            return "markdown", mediawiki_to_markdown(text)  # Convert MediaWiki to Markdown
     
     # Check for Markdown syntax
     for pattern in markdown_patterns:
         if re.search(pattern, text):
-            return "markdown"
+            return "markdown", text  # Already Markdown, return as-is
     
-    return "unknown"  # Default if no format is identified
+    return "unknown", text  # Default if no format is identified
 
 # Example usage
 if __name__ == "__main__":
     sample_mw = "== Heading ==\n'''Bold text'''\n[[Link]]"
     sample_md = "# Heading\n**Bold text**\n[Link](url)"
     
-    print("Detected format (MW):", detect_format(sample_mw))
-    print("Detected format (MD):", detect_format(sample_md))
+    detected_format, converted_text = detect_format(sample_mw)
+    print(f"Detected format: {detected_format}\nConverted Text:\n{converted_text}\n")
+    
+    detected_format, converted_text = detect_format(sample_md)
+    print(f"Detected format: {detected_format}\nConverted Text:\n{converted_text}")
