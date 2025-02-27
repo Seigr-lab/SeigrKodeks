@@ -1,7 +1,11 @@
 import tkinter as tk
-from tkinter import scrolledtext, simpledialog, filedialog, messagebox
+from tkinter import simpledialog, filedialog, messagebox
+from seigr_kodeks.storage_manager import select_storage_path, load_preferences, save_preferences
+from seigr_kodeks.file_manager import organize_files
+from seigr_kodeks.media_manager import insert_image, insert_audio, insert_video
+from seigr_kodeks.exporter import export_to_html, preview_html
 import os
-from seigr_kodeks.parsers.format_detector import detect_format
+import json
 
 class SeigrKodeksApp:
     def __init__(self, root):
@@ -9,105 +13,109 @@ class SeigrKodeksApp:
         self.root.title("SeigrKodeks - Book Creator")
         self.root.geometry("900x600")
         
-        # Book title and directory selection
-        self.book_title = ""
-        self.book_directory = ""
-        self.chapters = []
+        # Load user preferences
+        self.preferences = load_preferences()
+        self.storage_path = self.preferences.get("storage_path", "")
+        if not self.storage_path:
+            self.storage_path = select_storage_path()
+            if self.storage_path:
+                self.preferences["storage_path"] = self.storage_path
+                save_preferences(self.preferences)
+        
+        # Ensure SeKo_Books directory exists
+        self.books_directory = os.path.join(self.storage_path, "SeKo_Books")
+        os.makedirs(self.books_directory, exist_ok=True)
+        
+        self.book_path = ""
+        self.book_metadata = {}
         
         # UI Layout
         self.create_ui()
+        self.load_recent_books()
     
     def create_ui(self):
+        """Create the UI components for the application."""
         # Book Selection
         self.book_frame = tk.Frame(self.root)
         self.book_frame.pack(pady=5)
         
-        tk.Label(self.book_frame, text="Book Title: ").pack(side=tk.LEFT)
+        tk.Label(self.book_frame, text="Select a book to work on, or create a new one:").pack(side=tk.LEFT)
         self.book_title_label = tk.Label(self.book_frame, text="(No book selected)", fg="blue")
         self.book_title_label.pack(side=tk.LEFT)
         tk.Button(self.book_frame, text="Create/Open Book", command=self.select_book).pack(side=tk.LEFT, padx=10)
         
-        # Chapter List
-        self.chapter_listbox = tk.Listbox(self.root, height=10)
-        self.chapter_listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-        self.chapter_listbox.bind("<<ListboxSelect>>", self.load_chapter)
+        # Recent Books List
+        self.recent_books_listbox = tk.Listbox(self.root, height=5)
+        self.recent_books_listbox.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+        self.recent_books_listbox.bind("<<ListboxSelect>>", self.open_recent_book)
         
-        # Chapter Management Buttons
-        self.chapter_buttons = tk.Frame(self.root)
-        self.chapter_buttons.pack()
-        tk.Button(self.chapter_buttons, text="Add Chapter", command=self.add_chapter).pack(side=tk.LEFT, padx=5)
-        tk.Button(self.chapter_buttons, text="Delete Chapter", command=self.delete_chapter).pack(side=tk.LEFT, padx=5)
+        # File Management Buttons
+        self.file_buttons = tk.Frame(self.root)
+        self.file_buttons.pack(pady=5)
+        tk.Button(self.file_buttons, text="📷 Add Image", command=lambda: insert_image(self.book_path)).pack(side=tk.LEFT, padx=2)
+        tk.Button(self.file_buttons, text="🎵 Add Audio", command=lambda: insert_audio(self.book_path)).pack(side=tk.LEFT, padx=2)
+        tk.Button(self.file_buttons, text="🎬 Add Video", command=lambda: insert_video(self.book_path)).pack(side=tk.LEFT, padx=2)
+        tk.Button(self.file_buttons, text="📂 Organize Files", command=lambda: organize_files(self.book_path)).pack(side=tk.LEFT, padx=2)
         
-        # Markdown Editor with Formatting Buttons
-        self.editor_frame = tk.Frame(self.root)
-        self.editor_frame.pack(pady=5)
-        
-        tk.Button(self.editor_frame, text="Bold", command=lambda: self.insert_markdown('**', '**')).pack(side=tk.LEFT, padx=2)
-        tk.Button(self.editor_frame, text="Italic", command=lambda: self.insert_markdown('*', '*')).pack(side=tk.LEFT, padx=2)
-        tk.Button(self.editor_frame, text="Link", command=self.insert_link).pack(side=tk.LEFT, padx=2)
-        tk.Button(self.editor_frame, text="Image", command=self.insert_image).pack(side=tk.LEFT, padx=2)
-        tk.Button(self.editor_frame, text="Heading", command=self.insert_heading).pack(side=tk.LEFT, padx=2)
-        
-        # Chapter Editor
-        self.text_input = scrolledtext.ScrolledText(self.root, height=10)
-        self.text_input.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-        
-        # Convert & Save
-        self.bottom_frame = tk.Frame(self.root)
-        self.bottom_frame.pack(pady=10)
-        tk.Button(self.bottom_frame, text="Convert to Markdown", command=self.convert_text).pack(side=tk.LEFT, padx=5)
-        tk.Button(self.bottom_frame, text="Save Chapter", command=self.save_chapter).pack(side=tk.LEFT, padx=5)
-        
-        self.status_label = tk.Label(self.root, text="", fg="green")
-        self.status_label.pack()
-    
-    def insert_markdown(self, prefix, suffix):
-        self.text_input.insert(tk.INSERT, f"{prefix}TEXT{suffix}")
-    
-    def insert_link(self):
-        self.text_input.insert(tk.INSERT, "[Link Text](http://example.com)")
-    
-    def insert_image(self):
-        self.text_input.insert(tk.INSERT, "![Alt Text](image.jpg)")
-    
-    def insert_heading(self):
-        self.text_input.insert(tk.INSERT, "# Heading\n")
-    
+        # Export & Preview Buttons
+        self.export_buttons = tk.Frame(self.root)
+        self.export_buttons.pack(pady=5)
+        tk.Button(self.export_buttons, text="📖 Preview HTML", command=lambda: preview_html(self.book_path)).pack(side=tk.LEFT, padx=2)
+        tk.Button(self.export_buttons, text="🌍 Export to HTML", command=lambda: export_to_html(self.book_path)).pack(side=tk.LEFT, padx=2)
+
     def select_book(self):
-        book_directory = filedialog.askdirectory(title="Select Book Directory")
+        """Allows user to create or open a book."""
+        book_directory = filedialog.askdirectory(title="Select or Create a Book Directory", initialdir=self.books_directory)
         if book_directory:
-            self.book_directory = book_directory
-            self.book_title = os.path.basename(book_directory)
-            self.book_title_label.config(text=self.book_title)
-            self.load_chapters()
-    
-    def load_chapters(self):
-        self.chapters = [f for f in os.listdir(self.book_directory) if f.endswith(".md")]
-        self.chapter_listbox.delete(0, tk.END)
-        for chapter in self.chapters:
-            self.chapter_listbox.insert(tk.END, chapter.replace(".md", ""))
-    
-    def add_chapter(self):
-        chapter_name = simpledialog.askstring("New Chapter", "Enter chapter title:")
-        if chapter_name:
-            chapter_filename = chapter_name.replace(" ", "_") + ".md"
-            chapter_path = os.path.join(self.book_directory, chapter_filename)
-            open(chapter_path, "w").close()
-            self.chapters.append(chapter_filename)
-            self.chapter_listbox.insert(tk.END, chapter_name)
-    
-    def convert_text(self):
-        input_text = self.text_input.get("1.0", tk.END).strip()
-        if not input_text:
-            messagebox.showwarning("Warning", "Please enter text to convert.")
+            self.book_path = book_directory
+            self.book_title_label.config(text=os.path.basename(book_directory))
+            
+            # Ensure structured book directories exist
+            os.makedirs(os.path.join(self.book_path, "chapters"), exist_ok=True)
+            os.makedirs(os.path.join(self.book_path, "media"), exist_ok=True)
+            
+            # Load or create book.json
+            book_metadata_path = os.path.join(self.book_path, "book.json")
+            if os.path.exists(book_metadata_path):
+                with open(book_metadata_path, "r", encoding="utf-8") as file:
+                    self.book_metadata = json.load(file)
+            else:
+                self.book_metadata = {"title": os.path.basename(book_directory), "chapters": [], "media": []}
+                self.save_book_metadata()
+            
+            if book_directory not in self.preferences["recent_books"]:
+                self.preferences["recent_books"].insert(0, book_directory)
+                self.preferences["recent_books"] = self.preferences["recent_books"][:5]  # Keep last 5 books
+                save_preferences(self.preferences)
+            
+            self.load_recent_books()
+
+    def load_recent_books(self):
+        """Loads the list of recently opened books."""
+        self.recent_books_listbox.delete(0, tk.END)
+        for book in self.preferences.get("recent_books", []):
+            self.recent_books_listbox.insert(tk.END, os.path.basename(book))
+
+    def open_recent_book(self, event):
+        """Opens a recently used book."""
+        selected = self.recent_books_listbox.curselection()
+        if not selected:
             return
-        
-        detected_format, converted_text = detect_format(input_text)
-        
-        self.text_input.delete("1.0", tk.END)
-        self.text_input.insert(tk.INSERT, converted_text)
-        
-        self.status_label.config(text=f"Converted from {detected_format}", fg="green")
+        selected_book = self.preferences["recent_books"][selected[0]]
+        if os.path.exists(selected_book):
+            self.book_path = selected_book
+            self.book_title_label.config(text=os.path.basename(selected_book))
+        else:
+            messagebox.showwarning("Warning", "This book folder no longer exists.")
+            del self.preferences["recent_books"][selected[0]]
+            save_preferences(self.preferences)
+            self.load_recent_books()
+
+    def save_book_metadata(self):
+        """Saves the book metadata to book.json."""
+        book_metadata_path = os.path.join(self.book_path, "book.json")
+        with open(book_metadata_path, "w", encoding="utf-8") as file:
+            json.dump(self.book_metadata, file, indent=4)
 
 if __name__ == "__main__":
     root = tk.Tk()
