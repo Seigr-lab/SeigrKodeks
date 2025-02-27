@@ -2,6 +2,7 @@ import os
 import markdown
 from bs4 import BeautifulSoup
 
+
 class MarkdownParser:
     def __init__(self, book_path):
         self.book_path = book_path
@@ -20,7 +21,14 @@ class MarkdownParser:
         """Converts Markdown text to HTML with additional processing."""
         return markdown.markdown(
             markdown_text,
-            extensions=["fenced_code", "tables", "toc", "sane_lists", "nl2br", "attr_list"]
+            extensions=[
+                "fenced_code",
+                "tables",
+                "toc",
+                "sane_lists",
+                "nl2br",
+                "attr_list",
+            ],
         )
 
     def extract_metadata(self, markdown_text):
@@ -33,12 +41,7 @@ class MarkdownParser:
         images = [img["src"] for img in soup.find_all("img") if "src" in img.attrs]
         links = [a["href"] for a in soup.find_all("a") if "href" in a.attrs]
 
-        return {
-            "title": title,
-            "headings": headings,
-            "images": images,
-            "links": links
-        }
+        return {"title": title, "headings": headings, "images": images, "links": links}
 
     def parse_markdown_file(self, filename):
         """Reads and processes a Markdown file, returning parsed metadata and HTML."""
@@ -46,16 +49,14 @@ class MarkdownParser:
         metadata = self.extract_metadata(markdown_text)
         html = self.convert_to_html(markdown_text)
 
-        return {
-            "metadata": metadata,
-            "html": html
-        }
+        return {"metadata": metadata, "html": html}
+
 
 if __name__ == "__main__":
     # Example usage
     book_directory = "path/to/book"  # Adjust based on actual project directory
     parser = MarkdownParser(book_directory)
-    
+
     test_filename = "example.md"  # Place a sample file in `chapters/`
     try:
         result = parser.parse_markdown_file(test_filename)

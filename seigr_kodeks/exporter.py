@@ -4,6 +4,7 @@ import json
 from seigr_kodeks.html_renderer import HTMLRenderer
 from seigr_kodeks.markdown_parser import MarkdownParser
 
+
 class BookExporter:
     def __init__(self, book_path):
         if not book_path or not os.path.exists(book_path):
@@ -14,7 +15,7 @@ class BookExporter:
         self.chapters_path = os.path.join(book_path, "chapters")
         self.media_path = os.path.join(book_path, "media")
         self.static_path = os.path.join(book_path, "static")
-        
+
         self.html_renderer = HTMLRenderer(book_path)
         self.markdown_parser = MarkdownParser(self.chapters_path)
 
@@ -27,7 +28,10 @@ class BookExporter:
         """Copies media and CSS files to the export directory."""
         if os.path.exists(self.media_path):
             for file in os.listdir(self.media_path):
-                shutil.copy(os.path.join(self.media_path, file), os.path.join(self.export_path, "media"))
+                shutil.copy(
+                    os.path.join(self.media_path, file),
+                    os.path.join(self.export_path, "media"),
+                )
 
         styles_css = """
         body { font-family: Arial, sans-serif; max-width: 800px; margin: auto; padding: 20px; }
@@ -35,7 +39,11 @@ class BookExporter:
         a { text-decoration: none; color: #2980b9; }
         a:hover { text-decoration: underline; }
         """
-        with open(os.path.join(self.export_path, "static", "styles.css"), "w", encoding="utf-8") as file:
+        with open(
+            os.path.join(self.export_path, "static", "styles.css"),
+            "w",
+            encoding="utf-8",
+        ) as file:
             file.write(styles_css)
 
     def generate_navigation(self, chapters):
@@ -44,13 +52,15 @@ class BookExporter:
         for i, chapter in enumerate(chapters):
             prev_link = (
                 f'<a href="{chapters[i-1]["filename"].replace(".md", ".html")}">Previous</a>'
-                if i > 0 else ""
+                if i > 0
+                else ""
             )
             next_link = (
                 f'<a href="{chapters[i+1]["filename"].replace(".md", ".html")}">Next</a>'
-                if i < len(chapters) - 1 else ""
+                if i < len(chapters) - 1
+                else ""
             )
-            nav_links[chapter["filename"]] = f'<nav>{prev_link} {next_link}</nav>'
+            nav_links[chapter["filename"]] = f"<nav>{prev_link} {next_link}</nav>"
         return nav_links
 
     def export_book(self):
@@ -59,7 +69,7 @@ class BookExporter:
         if not os.path.exists(book_metadata_path):
             print("Error: No book.json found. Make sure to set up the book properly.")
             return
-        
+
         with open(book_metadata_path, "r", encoding="utf-8") as file:
             book_metadata = json.load(file)
 
@@ -81,7 +91,11 @@ class BookExporter:
             nav_html = nav_links.get(chapter["filename"], "")
             html_content = html_content.replace("</main>", f"{nav_html}</main>")
 
-            output_file = os.path.join(self.export_path, "chapters", chapter["filename"].replace(".md", ".html"))
+            output_file = os.path.join(
+                self.export_path,
+                "chapters",
+                chapter["filename"].replace(".md", ".html"),
+            )
             with open(output_file, "w", encoding="utf-8") as file:
                 file.write(html_content)
 
@@ -112,7 +126,9 @@ class BookExporter:
         </body>
         </html>"""
 
-        with open(os.path.join(self.export_path, "index.html"), "w", encoding="utf-8") as file:
+        with open(
+            os.path.join(self.export_path, "index.html"), "w", encoding="utf-8"
+        ) as file:
             file.write(index_content)
 
 
@@ -122,14 +138,17 @@ def export_to_html(book_path):
     exporter = BookExporter(book_path)
     exporter.export_book()
 
+
 def preview_html(book_path):
     """Opens the exported index.html in a web browser."""
     import webbrowser
+
     index_path = os.path.join(book_path, "export", "index.html")
     if os.path.exists(index_path):
         webbrowser.open(index_path)
     else:
         print("Error: The book has not been exported yet.")
+
 
 # **Make sure these functions are exposed**
 __all__ = ["export_to_html", "preview_html"]

@@ -3,6 +3,7 @@ import json
 import markdown
 from seigr_kodeks.parsers.format_detector import detect_format
 
+
 def load_chapter(book_path, chapter_filename):
     """Load the content of a chapter file."""
     chapter_path = os.path.join(book_path, "chapters", chapter_filename)
@@ -10,8 +11,9 @@ def load_chapter(book_path, chapter_filename):
     if os.path.exists(chapter_path):
         with open(chapter_path, "r", encoding="utf-8") as file:
             return file.read()
-    
+
     return ""
+
 
 def save_chapter(book_path, chapter_filename, content):
     """Save the content of a chapter file."""
@@ -20,14 +22,17 @@ def save_chapter(book_path, chapter_filename, content):
     with open(chapter_path, "w", encoding="utf-8") as file:
         file.write(content)
 
+
 def convert_to_markdown(text):
     """Convert input text (MediaWiki or Markdown) to clean Markdown."""
     detected_format, converted_text = detect_format(text)
     return converted_text, detected_format
 
+
 def render_markdown_to_html(markdown_text):
     """Convert Markdown text to HTML for previewing."""
     return markdown.markdown(markdown_text, extensions=["extra", "toc", "codehilite"])
+
 
 def update_chapter_references(book_path):
     """
@@ -51,18 +56,23 @@ def update_chapter_references(book_path):
         # Replace internal chapter links
         for other_chapter in metadata["chapters"]:
             if f"[[{other_chapter['title']}]]" in content:
-                content = content.replace(f"[[{other_chapter['title']}]]",
-                                          f"[{other_chapter['title']}]({other_chapter['filename']})")
+                content = content.replace(
+                    f"[[{other_chapter['title']}]]",
+                    f"[{other_chapter['title']}]({other_chapter['filename']})",
+                )
 
         # Replace embedded media links
         for media in metadata.get("media", []):
             if f"![[{media['filename']}]]" in content:
-                content = content.replace(f"![[{media['filename']}]]",
-                                          f"![{media['filename']}]({os.path.join('media', media['filename'])})")
+                content = content.replace(
+                    f"![[{media['filename']}]]",
+                    f"![{media['filename']}]({os.path.join('media', media['filename'])})",
+                )
 
         # Save updated content
         with open(chapter_path, "w", encoding="utf-8") as file:
             file.write(content)
+
 
 def format_markdown_text(markdown_text, format_type):
     """
@@ -78,8 +88,7 @@ def format_markdown_text(markdown_text, format_type):
         "italic": "*TEXT*",
         "link": "[Link Text](http://example.com)",
         "image": "![Alt Text](image.jpg)",
-        "code": "```\nCODE\n```"
+        "code": "```\nCODE\n```",
     }
 
     return markdown_text + "\n" + formatting_options.get(format_type, "")
-

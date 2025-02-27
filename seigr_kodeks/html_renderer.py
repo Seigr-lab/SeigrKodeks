@@ -2,6 +2,7 @@ import os
 import markdown
 from bs4 import BeautifulSoup
 
+
 class HTMLRenderer:
     def __init__(self, book_path):
         self.book_path = book_path
@@ -42,8 +43,15 @@ class HTMLRenderer:
     def render_html(self, markdown_text):
         """Converts Markdown to styled HTML using the template."""
         html_content = markdown.markdown(
-            markdown_text, 
-            extensions=["fenced_code", "tables", "toc", "sane_lists", "nl2br", "attr_list"]
+            markdown_text,
+            extensions=[
+                "fenced_code",
+                "tables",
+                "toc",
+                "sane_lists",
+                "nl2br",
+                "attr_list",
+            ],
         )
 
         template_file = os.path.join(self.template_path, "page_template.html")
@@ -54,7 +62,9 @@ class HTMLRenderer:
         soup = BeautifulSoup(html_content, "html.parser")
         title = soup.find("h1").text if soup.find("h1") else "Untitled Chapter"
 
-        rendered_html = template.replace("{{ title }}", title).replace("{{ content }}", html_content)
+        rendered_html = template.replace("{{ title }}", title).replace(
+            "{{ content }}", html_content
+        )
         return rendered_html
 
     def save_rendered_html(self, markdown_text, output_path):
@@ -62,6 +72,7 @@ class HTMLRenderer:
         rendered_html = self.render_html(markdown_text)
         with open(output_path, "w", encoding="utf-8") as file:
             file.write(rendered_html)
+
 
 if __name__ == "__main__":
     # Example Usage
